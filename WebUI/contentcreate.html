@@ -1,0 +1,272 @@
+<!-- contentcreate.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 共用样式 -->
+    <style>
+        .file-picker {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .novel-info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            background: rgba(245, 255, 250, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #37c2d4;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .info-label {
+            color: #00768b;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #37c2d4;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 文件选择模块 -->
+    <div class="file-picker">
+        <select id="novelSelector" class="xianxia-input" onchange="loadNovelData(this.value)">
+            <option value="">正在加载作品列表...</option>
+        </select>
+        <button onclick="refreshFileList()" class="random-btn">🔄 刷新列表</button>
+    </div>
+
+    <!-- 作品信息展示 -->
+    <div id="infoContainer" class="novel-info-panel" style="display:none;">
+        <div class="info-item">
+            <div class="info-label">📖 作品名称</div>
+            <div id="info-title">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">🎭 核心主题</div>
+            <div id="info-theme">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">👤 主角信息</div>
+            <div id="info-protagonist">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">📜 背景设定</div>
+            <div id="info-background">-</div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化加载文件列表
+        function initFileList() {
+            fetch('/api/get-novel-files')
+                .then(res => res.json())
+                .then(data => {
+                    const selector = document.getElementById('novelSelector');
+                    selector.innerHTML = data.files.length > 0 
+                        ? data.files.map(file => 
+                            `<option value="${file.path}" ${file.isLatest ? 'selected' : ''}>
+                                ${file.name} (${file.time})
+                            </option>`
+                          ).join('')
+                        : '<option value="">暂无历史作品</option>';
+                    
+                    if(data.files.length > 0) loadNovelData(data.files[0].path);
+                });
+        }
+
+        // 加载具体作品数据
+        function loadNovelData(filepath) {
+            if(!filepath) return;
+            
+            fetch(`/api/get-novel-content?path=${encodeURIComponent(filepath)}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('infoContainer').style.display = 'grid';
+                    document.getElementById('info-title').textContent = data.title || '未命名作品';
+                    document.getElementById('info-theme').textContent = data.theme;
+                    document.getElementById('info-protagonist').textContent = data.protagonist;
+                    document.getElementById('info-background').textContent = data.background;
+                });
+        }
+
+        // 刷新文件列表
+        function refreshFileList() {
+            document.getElementById('novelSelector').innerHTML = '<option>加载中...</option>';
+            initFileList();
+        }
+
+        // 初始化执行
+        window.onload = initFileList;
+    </script>
+
+    <div class="creation-section">
+        <!-- 全量章节生成 -->
+        <div class="generation-block">
+            <h2>📜 全量章节主线生成</h2>
+            <div class="generation-control">
+                <button class="action-btn" onclick="generateFullPlot()">
+                    🌀 生成主线剧情
+                </button>
+            </div>
+            <textarea 
+                id="fullPlot" 
+                class="plot-textarea" 
+                placeholder="生成的主线剧情将在此显示..."
+            ></textarea>
+        </div>
+
+        <!-- 单章节生成 -->
+        <div class="generation-block">
+            <h2>📖 具体章节内容生成</h2>
+            <div class="chapter-control">
+                <input 
+                    type="number" 
+                    id="chapterNum" 
+                    class="xianxia-input" 
+                    placeholder="输入章节号"
+                    min="1"
+                    value="1"
+                >
+                <button class="action-btn" onclick="generateChapter()">
+                    ✨ 生成本章内容
+                </button>
+            </div>
+            <textarea
+                id="chapterContent"
+                class="plot-textarea"
+                placeholder="生成的章节内容将在此显示..."
+            ></textarea>
+        </div>
+    </div>
+
+    <style>
+        /* 新增样式 */
+        .creation-section {
+            margin-top: 40px;
+            display: grid;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .generation-block {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 2px solid #37c2d4;
+        }
+
+        .generation-block h2 {
+            color: #1a4d5c;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .plot-textarea {
+            width: 100%;
+            height: 300px;
+            padding: 20px;
+            border: 2px solid #37c2d4;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            resize: vertical;
+            background: rgba(255,255,255,0.95);
+        }
+
+        .chapter-control {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chapter-control input {
+            width: 120px;
+            padding: 12px 15px;
+            text-align: center;
+        }
+
+        .generation-control {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+    </style>
+
+    <script>
+        // 新增交互逻辑
+        async function generateFullPlot() {
+            const filepath = document.getElementById('novelSelector').value;
+            if (!filepath) {
+                alert('请先选择作品文件');
+                return;
+            }
+
+            const textarea = document.getElementById('fullPlot');
+            textarea.value = '正在生成主线剧情...';
+            
+            try {
+                const response = await fetch('/api/generate-plot', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ filepath })
+                });
+                
+                const data = await response.json();
+                textarea.value = data.success 
+                    ? data.plot 
+                    : `生成失败: ${data.error}`;
+                
+            } catch (error) {
+                textarea.value = `请求异常: ${error.message}`;
+            }
+        }
+
+        async function generateChapter() {
+            const filepath = document.getElementById('novelSelector').value;
+            const chapterNum = document.getElementById('chapterNum').value;
+            
+            if (!filepath || !chapterNum) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            const textarea = document.getElementById('chapterContent');
+            textarea.value = '正在生成章节内容...';
+
+            try {
+                const response = await fetch('/api/generate-chapter', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        filepath,
+                        chapter: parseInt(chapterNum)
+                    })
+                });
+                
+                const data = await response.json();
+                textarea.value = data.success 
+                    ? data.content 
+                    : `生成失败: ${data.error}`;
+                
+            } catch (error) {
+                textarea.value = `请求异常: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

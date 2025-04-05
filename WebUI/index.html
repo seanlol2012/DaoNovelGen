@@ -155,13 +155,11 @@
     <script>
         // 示例交互函数
         async function createNew() {
-            const response = await fetch('/init_creation');
             window.location.href = '/creation_workspace?type=new';
         }
 
         async function continueWrite() {
-            // 调用续写接口
-            updateResult("正在推演天机，续写前缘...");
+            window.location.href = '/creation_content?type=new';
         }
 
         function updateResult(text) {
