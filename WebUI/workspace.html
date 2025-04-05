@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创作空间 | Creation Workspace</title>
+    <style>
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(55, 194, 212, 0.5); }
+            to { box-shadow: 0 0 20px rgba(55, 194, 212, 0); }
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f9ff;
+            min-height: 100vh;
+            font-family: 
+                "Microsoft YaHei",
+                "PingFang SC",
+                "Helvetica Neue",
+                Arial, 
+                sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a4d5c;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .creation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .input-label {
+            font-size: 1.3em;
+            color: #1a4d5c;
+            text-align: center;
+            width: 100%;
+            letter-spacing: 1px;
+        }
+
+        .xianxia-input {
+            padding: 12px 25px;
+            border: 2px solid #37c2d4;
+            border-radius: 30px;
+            font-size: 1.1em;
+            background: rgba(255,255,255,0.95);
+            resize: none;
+            overflow-y: hidden;
+            min-height: 50px;
+            transition: all 0.3s ease, height 0.2s ease， box-shadow 0.5s ease-out;
+            width: 80%;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .xianxia-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(55, 194, 212, 0.4);
+        }
+
+        .random-btn {
+            padding: 10px 25px;
+            background: linear-gradient(45deg, #00768b, #37c9d4);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            letter-spacing: 1px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+        }
+
+        .random-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .submit-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: linear-gradient(45deg, #00a8c5, #37d4d4);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .ribbon {
+            position: absolute;
+            width: 180px;
+            height: 40px;
+            background: linear-gradient(135deg, #37c2d4 0%, #00768b 100%);
+            transform: rotate(-45deg);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+            animation: float 3s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotate(-45deg) translateY(0); }
+            50% { transform: rotate(-45deg) translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .xianxia-input {
+                width: 90%;
+                font-size: 1em;
+                min-height: 44px;
+            }
+            .input-label {
+                font-size: 1.1em;
+            }
+            .random-btn {
+                padding: 8px 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ribbon" style="top:15%; left:8%"></div>
+    <div class="ribbon" style="top:25%; right:8%"></div>
+    
+    <div class="container">
+        <h1>✍️ 新作创作台 | New Creation</h1>
+        
+        <form class="creation-form" onsubmit="handleSubmit(event)">
+            <div class="input-group">
+                <label class="input-label">主题 | Theme</label>
+                <textarea 
+                    class="xianxia-input" 
+                    id="theme" 
+                    rows="1" 
+                    oninput="autoResize(this)"
+                    required
+                ></textarea>
+                <button type="button" class="random-btn" onclick="GenRandomTheme()">随机摇一摇 | Random</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">作品名 | Title</label>
+                <textarea 
+                    class="xianxia-input" 
+                    id="noveltitle" 
+                    rows="1" 
+                    oninput="autoResize(this)"
+                    required
+                ></textarea>
+                <button type="button" class="random-btn" onclick="SummarizeTheTheme()">总结生成 | Summarize</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">主角名 | Character's name</label>
+                <textarea 
+                    class="xianxia-input" 
+                    id="protagonist" 
+                    rows="1" 
+                    oninput="autoResize(this)"
+                    required
+                ></textarea>
+                <button type="button" class="random-btn" onclick="GenRandomCharatorName()">随机摇一摇 | Random</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">主角背景 | Character's background</label>
+                <textarea 
+                    class="xianxia-input" 
+                    id="background" 
+                    rows="5" 
+                    oninput="autoResize(this)"
+                    required
+                    style="min-height: 120px"
+                ></textarea>
+                <button type="button" class="random-btn" onclick="GenRandomCharatorBackground()">随机摇一摇 | Random</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">章节数量预设 | Preset chapter count</label>
+                <input type="number" class="xianxia-input" id="chapters" 
+                       min="1" max="100" step="1" required
+                       oninput="validateInteger(this)">
+                <div class="input-hint">（需为整数）</div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="action-btn" onclick="submitNovelData()">🚀 开始创作 | Start creating</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function validateInteger(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            // 提交逻辑
+        }
+
+        function GenRandomTheme() {
+            const themes = ["逆天改命", "宗门崛起", "秘境探宝", "仙魔之恋"];
+            document.getElementById('theme').value = themes[Math.floor(Math.random()*themes.length)];
+        }
+
+        function GenRandomCharatorName() {
+            const surnames = ["林", "萧", "叶", "苏", "沈", "慕", "宁", "楚", "江", "洛", "白", "墨", 
+                              "云", "风", "姜", "温", "顾", "夏", "秦", "柳", "韩", "江", "贺", "裴", 
+                              "颜", "陆", "时", "简", "许"];
+            const names = ["凡", "炎", "尘", "瑶", "风","云","雨","雷","电","霜","雪","冰","寒","冷",
+                           "清","幽","静","空","虚","无","尘","烟","雾","霞","虹","星","月","夜","晓",
+                           "晨","昏","暮","朝","夕","阳","阴","明","暗","光","影","尘","沙","石","木",
+                           "林","山","川","河","海","湖","江","溪","泉","潭","波","涛","浪","潮","沙",
+                           "岸","洲","岛","岩","崖","峰","岭","峦","岫","峪","峡","谷","壑","涧","溪",
+                           "瀑","潭","池","沼","泽","渊", "飞云","孤","逸尘","流风","寒霜","清歌","疏影",
+                           "明月",
+                           "剑鸣","幽篁","长生","无双","清欢","寒江","星河","青冥","苍茫","白鹤","青衫",
+                           "素衣","云深","尘埃","落英","飞雪","寒梅","冷月","青丝","白首","孤鸿","残阳",
+                           "烟雨","清秋","寒烟","冷露","飞花","流年","清梦","幽梦","寒潭","冷泉","青峰",
+                           "白石","孤松","寒松","飞瀑","流泉","清溪","幽谷","寒林","冷山","青崖","白云",
+                           "孤舟","寒舟","飞雁","流萤","清波","幽潭","寒波","冷波","青波","白云","孤鹤",
+                           "寒鹤","飞鸿","流云","清风","幽兰","寒兰","冷兰","青兰","白兰","孤星","寒星",
+                           "飞星","流星","清夜","幽夜","寒夜","冷夜","青夜","白天","孤月","寒月","飞月",
+                           "流月","清月","幽月","寒光","冷光","青光","白光","孤光","寒烟","飞烟","流烟",
+                           "清烟","幽烟","寒雾","冷雾","青雾","白雾","孤雾","寒潭","飞潭","流潭","清潭",
+                           "幽潭","寒泉","冷泉","青泉","白泉","孤泉","寒松","飞松","流松","清松","幽松",
+                           "寒竹","冷竹","青竹","白竹","孤竹","寒梅","飞梅","流梅","清梅","幽梅","寒柳",
+                           "冷柳","青柳","白柳","孤柳","寒枫","飞枫","流枫","清枫","幽枫","寒菊","冷菊",
+                           "青菊","白菊","孤菊","寒莲","飞莲","流莲","清莲","幽莲","寒荷","冷荷","青荷",
+                           "白荷","孤荷","寒芝","飞芝","流芝","清芝","幽芝","寒芝","冷芝","青芝","白芝",
+                           "孤芝"];
+            document.getElementById('protagonist').value = 
+                surnames[Math.floor(Math.random()*surnames.length)] +
+                names[Math.floor(Math.random()*names.length)];
+        }
+
+        function GenRandomCharatorBackground() {
+            const backgrounds = [
+                "天生废灵根却意外获得上古传承",
+                "被灭门的宗门唯一幸存弟子",
+                "转世重修的仙界大能",
+                "拥有特殊体质的妖族混血"
+            ];
+            document.getElementById('background').value = backgrounds[Math.floor(Math.random()*backgrounds.length)];
+        }
+
+        function SummarizeTheTheme() {
+            const themeInput = document.getElementById('theme');
+            const titleInput = document.getElementById('noveltitle');
+
+            if (!themeInput.value.trim()) {
+                alert('请先输入或生成主题');
+                themeInput.focus();
+                return;
+            }
+            // 显示加载状态
+            titleInput.placeholder = "Generating...";
+            const originalText = titleInput.value;
+            titleInput.value = "";
+
+            fetch('/api/summarize-novel-theme', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    theme: themeInput.value
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP错误 ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    titleInput.value = data.generatedTitle;
+                    titleInput.style.animation = 'glow 1s ease-out';
+                } else {
+                    titleInput.value = originalText;
+                    alert(`failed to gen title: ${data.error || 'unknown error'}`);
+                }
+            })
+            .catch(error => {
+                console.error('exception: ', error);
+                titleInput.value = originalText;
+                alert('connection error');
+            })
+            .finally(() => {
+                titleInput.placeholder = "";
+            });
+        }
+
+        function submitNovelData() {
+            // 收集所有输入数据
+            const novelData = {
+                theme: document.getElementById('theme').value,
+                title: document.getElementById('noveltitle').value,
+                protagonist: document.getElementById('protagonist').value,
+                background: document.getElementById('background').value,
+                chapters: document.getElementById('chapters').value
+            };
+
+            fetch('/api/generate-novel-setting', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(novelData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert('data written in');
+                    console.log('生成结果:', data.filepath);
+                } else {
+                    alert('error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('exception:', error);
+                alert('exception occurred');
+            });
+        }
+    </script>
+</body>
+</html>
