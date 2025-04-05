@@ -94,7 +94,8 @@ class DaoWritingAgent:
                         "title": data.get('title'),
                         "theme": data.get('theme'),
                         "protagonist": data.get('protagonist'),
-                        "background": data.get('background')
+                        "background": data.get('background'),
+                        "chapters": data.get('chapters', 0)
                     })
             except Exception as e:
                 return jsonify({"error": str(e)}), 500

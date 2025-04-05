@@ -65,6 +65,10 @@
             <div class="info-label">📜 背景设定</div>
             <div id="info-background">-</div>
         </div>
+        <div class="info-item">
+            <div class="info-label">📘 章节总数</div>
+            <div id="info-chapters">-</div>
+        </div>
     </div>
 
     <script>
@@ -98,6 +102,7 @@
                     document.getElementById('info-theme').textContent = data.theme;
                     document.getElementById('info-protagonist').textContent = data.protagonist;
                     document.getElementById('info-background').textContent = data.background;
+                    document.getElementById('info-chapters').textContent = data.chapters || '0';
                 });
         }
 

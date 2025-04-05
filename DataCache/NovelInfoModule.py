@@ -16,6 +16,14 @@ class NovelInfoModule:
         try:
             # 获取前端数据
             data = request.get_json()
+
+            # 新增校验：检查title是否有效
+            novel_title = data.get('title', '').strip()
+            if not novel_title:
+                return jsonify({
+                    "success": False,
+                    "error": "必须填写小说名称"
+                }), 400
             
             # 数据校验
             required_fields = ['theme', 'title', 'protagonist', 'background', 'chapters']
@@ -32,13 +40,17 @@ class NovelInfoModule:
             self.novelChapters = data['chapters']
             print(self.novelTheme, self.novelName, self.novelMainCharacterName, self.novelCharacterList, self.novelChapters)
 
+            def sanitize_filename(name):
+                # 替换非法字符为下划线
+                keep_chars = (' ', '_', '-')
+                return "".join(c if c.isalnum() or c in keep_chars else '_' for c in name).strip()
+
+            safe_title = sanitize_filename(novel_title)[:50]  # 限制最大长度
+            filename = f"{safe_title}.json"  # 添加时间戳保证唯一性
+
             # 创建存储目录
             cache_dir = Path("datacache/novels")
             cache_dir.mkdir(exist_ok=True)
-            
-            # 生成唯一文件名
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filename = f"novel_{timestamp}.json"
             filepath = cache_dir / filename
             
             # 保存原始数据
