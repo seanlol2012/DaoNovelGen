@@ -117,9 +117,8 @@
     </script>
 
     <div class="creation-section">
-        <!-- 全量章节生成 -->
         <div class="generation-block">
-            <h2>📜 全量章节主线生成</h2>
+            <h2>📜 世界观及主线生成</h2>
             <div class="generation-control">
                 <button class="action-btn" onclick="generateFullPlot()">
                     🌀 生成主线剧情
@@ -129,6 +128,39 @@
                 id="fullPlot" 
                 class="plot-textarea" 
                 placeholder="生成的主线剧情将在此显示..."
+            ></textarea>
+        </div>
+
+        <div class="generation-block">
+            <h2>📑 章节标题生成</h2>
+            <div class="chapter-control">
+                <input
+                    type="number" 
+                    id="startChapter" 
+                    class="xianxia-input" 
+                    placeholder="起始章节" 
+                    min="1" 
+                    value="1"
+                    style="width: 120px"
+                >
+                <span>至</span>
+                <input
+                    type="number" 
+                    id="endChapter" 
+                    class="xianxia-input" 
+                    placeholder="结束章节" 
+                    min="1" 
+                    value="10"
+                    style="width: 120px"
+                >
+                <button class="action-btn" onclick="generateChapterTitles()">
+                    ✨ 标题生成
+                </button>
+            </div>
+            <textarea
+                id="chapterTitles"
+                class="plot-textarea"
+                placeholder="生成的章节标题将在此显示..."
             ></textarea>
         </div>
 
@@ -247,6 +279,54 @@
                 textarea.value = `请求异常: ${error.message}`;
             }
         }
+
+        async function generateChapterTitles() {
+            const filepath = document.getElementById('novelSelector').value;
+            const start = parseInt(document.getElementById('startChapter').value);
+            const end = parseInt(document.getElementById('endChapter').value);
+            const textarea = document.getElementById('chapterTitles');
+
+            // 输入校验
+            if (!filepath) {
+                alert('请先选择作品文件');
+                return;
+            }
+            if (isNaN(start) || isNaN(end) || start < 1 || end < start) {
+                alert('请输入有效的章节范围');
+                return;
+            }
+
+            textarea.value = `正在生成第${start}-${end}章标题（约需${Math.round((end-start+1)*0.5)}秒）...`;
+
+            try {
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 300000); // 5分钟超时
+
+                const response = await fetch('/api/generate-titles', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        filepath,
+                        start,
+                        end
+                    }),
+                    signal: controller.signal
+                });
+
+                if (!response.ok) throw new Error(`HTTP错误 ${response.status}`);
+                
+                const data = await response.json();
+                textarea.value = data.success 
+                    ? data.titles 
+                    : `生成失败: ${data.error}`;
+
+            } catch (error) {
+                textarea.value = error.name === 'AbortError'
+                    ? '生成超时，建议每次生成不超过50章'
+                    : `请求异常: ${error.message}`;
+            }
+        }
+
 
         async function generateChapter() {
             const filepath = document.getElementById('novelSelector').value;

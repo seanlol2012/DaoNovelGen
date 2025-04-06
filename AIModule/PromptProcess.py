@@ -13,7 +13,10 @@ class PromptProcess:
 
         self.promptCommon = "背景：你是一个修仙小说创作者大师，熟悉当前几乎所有热门网文的创作灵感和创作方法。" \
                             "你善于设置悬念，设计的故事剧情引人入胜。如果没有特别说明的话，你的输出语言应该是中文。" \
+                            "你只需要完成任务，不会说出什么【希望这个大纲能帮助你创作出一部精彩的修仙小说！】等这种结尾祝福式的对话。" \
                             "现在你的任务是："
+        self.resultPlot = ""
+        self.resultTitle = ""
 
     def GeneratePrompt(self) -> str:
         prompt = self.promptCommon
@@ -54,7 +57,6 @@ class PromptProcess:
             prompt += f"作品名称：《{novel_data['title']}》\n"
             prompt += f"核心主题：{novel_data['theme']}\n"
             prompt += f"主角设定：{novel_data['protagonist']}（{novel_data['background']}）\n"
-            prompt += f"计划章节数：{novel_data['chapters']}章\n\n"
             prompt += "生成要求：\n"
             prompt += "1. 构建宏大而独特的世界：创造一个具有独特地理、历史、文化和修炼体系的世界，让读者能够沉浸在其中。" \
                       "设定清晰的修炼体系：明确修炼的阶段、方法、资源和限制，确保体系逻辑自洽，如角色能力提升的境界划分。" \
@@ -64,25 +66,74 @@ class PromptProcess:
                       "配角塑造：配角应有各自的性格、背景和动机，避免脸谱化，使他们与主角产生互动和冲突。" \
                       "反派设计：反派应有合理的动机和背景，避免单纯为了作恶而存在，使正邪冲突更具深度。" \
                       "角色成长：角色应随着故事发展而成长和变化，体现其在修仙道路上的心境提升和实力增长。\n"
-            prompt += "3. 每100-300章为一个剧情阶段。注意：" \
+            prompt += "3. 语言流畅：使用流畅、生动的语言，避免过于晦涩或冗长的句子，使读者能够轻松阅读。" \
+                      "描写细腻：对场景、人物和情感进行细腻的描写，增强故事的画面感和代入感。" \
+                      "叙事结构：选择合适的叙事结构，如线性叙事、多线叙事等，使故事更具层次感和吸引力。" \
+                      "幽默与搞怪：根据小说风格，适当加入幽默、搞怪或现代元素，增加故事的趣味性\n"
+            prompt += "4. 创新设定：在传统修仙元素的基础上，加入独特的创新设定，如特殊的修炼方法、新颖的法宝等。" \
+                      "反映现实：通过故事反映人性的复杂，增加故事的深度和内涵。" \
+                      "文化传承：融入中国传统文化元素，如道家思想、神话传说等，使小说更具文化底蕴。\n"
+
+            print(prompt)
+
+            resultPlot = self.LLMmodule.GenerateWithOllama(prompt)
+            resultPlot = self.LLMmodule.GetContentFromDict(resultPlot)
+            print(resultPlot)
+            self.resultPlot = resultPlot
+
+            return resultPlot
+
+        except FileNotFoundError:
+            logging.error(f"配置文件不存在：{filepath}")
+            return f"错误：找不到配置文件 {os.path.basename(filepath)}"
+        except json.JSONDecodeError:
+            logging.error("JSON文件解析失败")
+            return "错误：配置文件格式不正确"
+        except Exception as e:
+            logging.error(f"生成大纲时发生异常：{str(e)}")
+            return f"生成失败：{str(e)}"
+    
+    def GenerateSpecificTitles(self, filepath, startIndex, endIndex):
+        try:
+            # 读取JSON文件
+            with open(filepath, 'r', encoding='utf-8') as f:
+                novel_data = json.load(f)
+            
+            # 校验必要字段
+            required_fields = ['theme', 'title', 'protagonist', 'background', 'chapters']
+            if not all(key in novel_data for key in required_fields):
+                errorInfo = f"JSON文件缺少必要字段，缺失字段：{set(required_fields) - set(novel_data.keys())}"
+                print(errorInfo)
+                logging.error(errorInfo)
+                return ""
+            
+            prompt = f"{self.promptCommon}\n"
+            prompt += f"作品名称：《{novel_data['title']}》\n"
+            prompt += f"核心主题：{novel_data['theme']}\n"
+            prompt += f"主角设定：{novel_data['protagonist']}（{novel_data['background']}）\n"
+
+            if self.resultPlot != "":
+                prompt += f"世界观：{self.resultPlot}\n"
+            prompt += f"\n"
+            prompt += f"基于以下要求生成小说第{startIndex}章到第{endIndex}章的章节标题（严格按照此要求的起始和节数章节来，不能多不能少，不可省略，不可概括，每一章的标题都需要如实输出）：\n"
+            prompt += "注意：" \
                       "主线清晰：确定故事的主线，如主角的修仙之路、寻找神器、拯救世界等，确保情节围绕主线展开。" \
                       "冲突与挑战：设置丰富的冲突和挑战，如修炼瓶颈、正邪斗争、资源争夺等，推动情节发展。" \
                       "悬念与反转：在情节中设置悬念和反转，增加故事的吸引力和不确定性，如隐藏的身份、未解的秘密等。" \
                       "节奏把控：合理安排情节的节奏，避免过于拖沓或紧凑，使读者能够保持阅读兴趣\n"
-            prompt += "4. 语言流畅：使用流畅、生动的语言，避免过于晦涩或冗长的句子，使读者能够轻松阅读。" \
-                      "描写细腻：对场景、人物和情感进行细腻的描写，增强故事的画面感和代入感。" \
-                      "叙事结构：选择合适的叙事结构，如线性叙事、多线叙事等，使故事更具层次感和吸引力。" \
-                      "幽默与搞怪：根据小说风格，适当加入幽默、搞怪或现代元素，增加故事的趣味性\n"
-            prompt += "5. 创新设定：在传统修仙元素的基础上，加入独特的创新设定，如特殊的修炼方法、新颖的法宝等。" \
-                      "反映现实：通过故事反映人性的复杂，增加故事的深度和内涵。" \
-                      "文化传承：融入中国传统文化元素，如道家思想、神话传说等，使小说更具文化底蕴。"
+            prompt += "输出要求：\n列举清晰，首先不同的剧情阶段涉及的章节数，其次每个剧情阶段包含的章节标题，标题后面用括号记录本章会发生的剧情，" \
+                      "记住不要记录无聊的流水账，不要重复。每个剧情阶段都需要设置多个伏笔，并在此剧情阶段陆续解决回收伏笔。\n" \
+                      "输出不需要你说任何额外的内容，按下述要求即可。（一定不要输出下述格式之外的内容）"
+            prompt += "输出举例：\n第1章：《XXXXX》（XXXX,XXXXX）\n第2章：《XXXXX》（XXXX,XXXXX）\n第3章：《XXXXX》（XXXX,XXXXX）\n"
 
             print(prompt)
 
-            # 调用大模型生成
-            result = self.LLMmodule.GenerateWithOllama(prompt)
-            print(result)
-            return self.LLMmodule.GetContentFromDict(result)
+            resultTitle = self.LLMmodule.GenerateWithOllama(prompt)
+            resultTitle = self.LLMmodule.GetContentFromDict(resultTitle)
+            print(resultTitle)
+            self.resultTitle = resultTitle
+
+            return resultTitle
 
         except FileNotFoundError:
             logging.error(f"配置文件不存在：{filepath}")

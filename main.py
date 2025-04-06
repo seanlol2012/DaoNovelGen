@@ -134,6 +134,30 @@ class DaoWritingAgent:
                     "success": False,
                     "error": str(e)
                 }), 500
+        
+        @self.app.route('/api/generate-titles', methods=['POST'])
+        def generate_titles():
+            data = request.get_json()
+            # 参数校验
+            if not all(key in data for key in ['filepath','start','end']):
+                return jsonify(success=False, error="参数缺失"), 400
+            
+            # 业务逻辑
+            try:
+                titles = self.promptProcess.GenerateSpecificTitles(
+                    data['filepath'],
+                    data['start'],
+                    data['end']
+                )
+                return jsonify({
+                    "success": True,
+                    "titles": titles
+                })
+            except Exception as e:
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
 
 
 if __name__ == "__main__":
