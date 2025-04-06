@@ -14,7 +14,7 @@ class DaoWritingAgent:
         self.app = Flask(__name__, template_folder='WebUI')
         self.handldProcess = NovelInfoModule()
         self.RegisterRoutes()
-        self.promptProcess = PromptProcess()
+        self.promptProcess = PromptProcess(self.handldProcess)
 
     def RegisterRoutes(self):
         @self.app.route('/')

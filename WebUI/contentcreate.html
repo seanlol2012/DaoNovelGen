@@ -222,14 +222,21 @@
             }
 
             const textarea = document.getElementById('fullPlot');
-            textarea.value = '正在生成主线剧情...';
+            textarea.value = '正在生成主线剧情（可能需要3-5分钟）...\nGenerating full plot（may take 3-5 minutes）...';
             
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 300000);
+
                 const response = await fetch('/api/generate-plot', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ filepath })
+                    body: JSON.stringify({ filepath }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`HTTP错误 ${response.status}`);
                 
                 const data = await response.json();
                 textarea.value = data.success 

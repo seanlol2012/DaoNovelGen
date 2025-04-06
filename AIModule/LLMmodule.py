@@ -36,7 +36,7 @@ class LLMmodule:
                 f"{self.ollamaBaseUrl}/api/generate",
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(payload),
-                timeout=60
+                timeout=300
             )
             
             if response.status_code == 200:

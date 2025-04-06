@@ -11,6 +11,8 @@ class NovelInfoModule:
         self.novelMainCharacterName = ""
         self.novelCharacterList = []
         self.novelChapters = 0
+        # 是否初始化
+        self.isInitialized = False
 
     def GatherUserInput(self):
         try:
@@ -39,6 +41,7 @@ class NovelInfoModule:
             self.novelCharacterList = data['background']
             self.novelChapters = data['chapters']
             print(self.novelTheme, self.novelName, self.novelMainCharacterName, self.novelCharacterList, self.novelChapters)
+            self.isInitialized = True
 
             def sanitize_filename(name):
                 # 替换非法字符为下划线
@@ -71,3 +74,12 @@ class NovelInfoModule:
                 "success": False,
                 "error": f"exception: {str(e)}"
             }), 500
+
+    def SetNovelInfo(self, novelName, novelTheme, novelMainCharacterName, novelCharacterList, novelChapters):
+        self.novelName = novelName
+        self.novelTheme = novelTheme
+        self.novelMainCharacterName = novelMainCharacterName
+        self.novelCharacterList = novelCharacterList
+        self.novelChapters = novelChapters
+
+        self.isInitialized = True
