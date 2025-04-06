@@ -144,6 +144,54 @@ class PromptProcess:
         except Exception as e:
             logging.error(f"生成大纲时发生异常：{str(e)}")
             return f"生成失败：{str(e)}"
+    
+    def GenerateChapter(self, filepath, chapterIndex):
+        try:
+            # 读取JSON文件
+            with open(filepath, 'r', encoding='utf-8') as f:
+                novel_data = json.load(f)
+            
+            # 校验必要字段
+            required_fields = ['theme', 'title', 'protagonist', 'background', 'chapters']
+            if not all(key in novel_data for key in required_fields):
+                errorInfo = f"JSON文件缺少必要字段，缺失字段：{set(required_fields) - set(novel_data.keys())}"
+                print(errorInfo)
+                logging.error(errorInfo)
+                return ""
+
+            prompt = f"{self.promptCommon}\n"
+            prompt += f"作品名称：《{novel_data['title']}》\n"
+            prompt += f"核心主题：{novel_data['theme']}\n"
+            prompt += f"主角设定：{novel_data['protagonist']}（{novel_data['background']}）\n"
+            if self.resultPlot != "":
+                prompt += f"世界观：{self.resultPlot}\n"
+            prompt += "要求：\n" \
+                      "语言流畅：使用流畅、生动的语言，避免过于晦涩或冗长的句子，使读者能够轻松阅读。" \
+                      "描写细腻：对场景、人物和情感进行细腻的描写，增强故事的画面感和代入感。" \
+                      "叙事结构：选择合适的叙事结构，如线性叙事、多线叙事等，使故事更具层次感和吸引力。" \
+                      "幽默与搞怪：根据小说风格，适当加入幽默、搞怪或现代元素，增加故事的趣味性\n"
+            prompt += "特别注意：\n" \
+                      "一定要注意扩充细节，描写更像网文大师一样，不要用一些很草率的话来代替。一定不能存在记流水账的现象，前一段还在村里默默无闻，后面就突然拿到宝物了。" \
+                      "要注意因果逻辑关系，剧情不能突兀，也不能仓促。现在是长篇小说，有充足的篇幅去说清楚每一件事情，要注意逻辑符合常理，要注意细节。"
+            prompt += f"现在请根据剧情走向，后续将要发生的内容，以及上述的各种信息和要求，编写第{chapterIndex}章的内容，要求不少于4200字，请严格按照此字数限制输出。如果不够，重新生成扩写，直到满足要求。"
+            
+            print(prompt)
+
+            resultContent = self.LLMmodule.GenerateWithOllama(prompt)
+            resultContent = self.LLMmodule.GetContentFromDict(resultContent)
+            print(resultContent)
+
+            return resultContent
+
+        except FileNotFoundError:
+            logging.error(f"配置文件不存在：{filepath}")
+            return f"错误：找不到配置文件 {os.path.basename(filepath)}"
+        except json.JSONDecodeError:
+            logging.error("JSON文件解析失败")
+            return "错误：配置文件格式不正确"
+        except Exception as e:
+            logging.error(f"生成大纲时发生异常：{str(e)}")
+            return f"生成失败：{str(e)}"
 
 
 if __name__ == "__main__":

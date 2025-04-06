@@ -341,13 +341,17 @@
             textarea.value = '正在生成章节内容...';
 
             try {
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 300000); // 5分钟超时
+
                 const response = await fetch('/api/generate-chapter', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         filepath,
                         chapter: parseInt(chapterNum)
-                    })
+                    }),
+                    signal: controller.signal
                 });
                 
                 const data = await response.json();
