@@ -3,15 +3,15 @@ import sys
 import requests
 import json
 from typing import Dict, Generator
+from ConfigModule.ConfigManager import config
 
 
 class LLMmodule:
-    def __init__(self, llmModel="gemma3:27b", maxTokens=4096, temperature=0.7):
+    def __init__(self):
         self.ollamaBaseUrl = "http://localhost:11434"
-        # 默认模型名
-        self.llmModel = llmModel
-        self.maxTokens = maxTokens
-        self.temperature = temperature
+        self.llmModel = config.get("llm_model", "gemma3:27b")
+        self.maxTokens = config.get("max_tokens", 4096)
+        self.temperature = config.get("temperature", 0.7)
     
     def GenerateWithOllama(self, prompt: str, stream: bool = False) -> Dict:
         """
@@ -47,20 +47,17 @@ class LLMmodule:
                         if line:
                             chunk = json.loads(line.decode())
                             full_response += chunk.get("response", "")
-                    return {"success": True, "response": full_response}
+                    return full_response
                 else:
                     result = response.json()
-                    return {"success": True, "response": result.get("response", "")}
+                    return result.get("response", "")
             else:
-                return {
-                    "success": False,
-                    "error": f"API Error: {response.status_code} - {response.text}"
-                }
+                return f"API Error: {response.status_code} - {response.text}"
                 
         except requests.exceptions.RequestException as e:
-            return {"success": False, "error": f"连接异常: {str(e)}"}
+            return f"连接异常: {str(e)}"
         except json.JSONDecodeError:
-            return {"success": False, "error": "响应解析失败"}
+            return "响应解析失败"
     
     def GetContentFromDict(self, data: Dict) -> str:
         if not isinstance(data, dict):
@@ -76,5 +73,4 @@ class LLMmodule:
 if __name__ == "__main__":
     llm = LLMmodule()
     result = llm.GenerateWithOllama("说一首李白的诗", stream=False)
-    content = llm.GetContentFromDict(result)
-    print(content)
+    print(result)

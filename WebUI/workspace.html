@@ -404,7 +404,12 @@
                 title: document.getElementById('noveltitle').value,
                 protagonist: document.getElementById('protagonist').value,
                 background: document.getElementById('background').value,
-                chapters: document.getElementById('chapters').value
+                chapters: document.getElementById('chapters').value,
+                chaptersTitles: "",
+                currentPlot: "",
+                primaryPlotline: "",
+                hiddenPlotline: "",
+                charactorLists: ""
             };
 
             fetch('/api/generate-novel-setting', {

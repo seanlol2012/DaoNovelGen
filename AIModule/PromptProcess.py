@@ -3,12 +3,20 @@ import sys
 import json
 import logging
 from DataCache.NovelInfoModule import NovelInfoModule
+from ConfigModule.ConfigManager import config
 from AIModule.LLMmodule import LLMmodule
+from AIModule.RAGmodule import RAGProcessor
 
 
 class PromptProcess:
     def __init__(self, novelInfoModule: NovelInfoModule):
-        self.LLMmodule = LLMmodule()
+        self.isRagOn = config.get("enable_rag", False)
+        if self.isRagOn:
+            print("RAG on")
+            self.RAGModule = RAGProcessor()
+        else:
+            print("RAG off")
+            self.LLMmodule = LLMmodule()
         self.novelInfoModule = novelInfoModule
 
         self.promptCommon = "背景：你是一个修仙小说创作者大师，熟悉当前几乎所有热门网文的创作灵感和创作方法。" \
@@ -33,9 +41,11 @@ class PromptProcess:
             prompt += "小说的主题: " + novelTheme + "\n"
         else:
             prompt += "请你随机生成一个小说的名字。（请注意，只需要小说名字，不需要额外的信息，也无需提供推理解释）\n"
-        result = self.LLMmodule.GenerateWithOllama(prompt)
-        content = self.LLMmodule.GetContentFromDict(result)
-        return content
+        if self.isRagOn:
+            result = self.RAGModule.GenerateWithOllama(prompt)
+        else:
+            result = self.LLMmodule.GenerateWithOllama(prompt)
+        return result
 
     def GenerateFullPlot(self, filepath) -> str:
         try:
@@ -76,8 +86,10 @@ class PromptProcess:
 
             print(prompt)
 
-            resultPlot = self.LLMmodule.GenerateWithOllama(prompt)
-            resultPlot = self.LLMmodule.GetContentFromDict(resultPlot)
+            if self.isRagOn:
+                resultPlot = self.RAGModule.GenerateWithOllama(prompt)
+            else:
+                resultPlot = self.LLMmodule.GenerateWithOllama(prompt)
             print(resultPlot)
             self.resultPlot = resultPlot
 
@@ -128,8 +140,10 @@ class PromptProcess:
 
             print(prompt)
 
-            resultTitle = self.LLMmodule.GenerateWithOllama(prompt)
-            resultTitle = self.LLMmodule.GetContentFromDict(resultTitle)
+            if self.isRagOn:
+                resultTitle = self.RAGModule.GenerateWithOllama(prompt)
+            else:
+                resultTitle = self.LLMmodule.GenerateWithOllama(prompt)
             print(resultTitle)
             self.resultTitle = resultTitle
 
@@ -177,8 +191,10 @@ class PromptProcess:
             
             print(prompt)
 
-            resultContent = self.LLMmodule.GenerateWithOllama(prompt)
-            resultContent = self.LLMmodule.GetContentFromDict(resultContent)
+            if self.isRagOn:
+                resultContent = self.RAGModule.GenerateWithOllama(prompt)
+            else:
+                resultContent = self.LLMmodule.GenerateWithOllama(prompt)
             print(resultContent)
 
             return resultContent
@@ -196,5 +212,5 @@ class PromptProcess:
 
 if __name__ == "__main__":
     promptProcess = PromptProcess()
-    result = promptProcess.GeneratePrompt("诗人身处异乡的思乡之情，非常感人")
+    result = promptProcess.GeneratePrompt("诗人身处异乡的思乡之情")
     print(result)

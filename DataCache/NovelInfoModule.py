@@ -9,7 +9,7 @@ class NovelInfoModule:
         self.novelName = ""
         self.novelTheme = ""
         self.novelMainCharacterName = ""
-        self.novelCharacterList = []
+        self.novelMainCharacterBackground = ""
         self.novelChapters = 0
         # 是否初始化
         self.isInitialized = False
@@ -32,15 +32,15 @@ class NovelInfoModule:
             if not all(field in data for field in required_fields):
                 return jsonify({
                     "success": False,
-                    "error": "params missing"
+                    "error": "关键参数缺失"
                 }), 400
             
             self.novelTheme = data['theme']
             self.novelName = data['title']
             self.novelMainCharacterName = data['protagonist']
-            self.novelCharacterList = data['background']
+            self.novelMainCharacterBackground = data['background']
             self.novelChapters = data['chapters']
-            print(self.novelTheme, self.novelName, self.novelMainCharacterName, self.novelCharacterList, self.novelChapters)
+            print(self.novelTheme, self.novelName, self.novelMainCharacterName, self.novelMainCharacterBackground, self.novelChapters)
             self.isInitialized = True
 
             def sanitize_filename(name):
@@ -58,7 +58,7 @@ class NovelInfoModule:
             
             # 保存原始数据
             with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+                json.dump(data, f, ensure_ascii=False, indent=4)
             
             # 这里可以添加后续处理逻辑
             # ...
@@ -75,11 +75,11 @@ class NovelInfoModule:
                 "error": f"exception: {str(e)}"
             }), 500
 
-    def SetNovelInfo(self, novelName, novelTheme, novelMainCharacterName, novelCharacterList, novelChapters):
+    def SetNovelInfo(self, novelName, novelTheme, novelMainCharacterName, novelMainCharacterBackground, novelChapters):
         self.novelName = novelName
         self.novelTheme = novelTheme
         self.novelMainCharacterName = novelMainCharacterName
-        self.novelCharacterList = novelCharacterList
+        self.novelMainCharacterBackground = novelMainCharacterBackground
         self.novelChapters = novelChapters
 
         self.isInitialized = True

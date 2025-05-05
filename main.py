@@ -61,7 +61,6 @@ class DaoWritingAgent:
                     "error": f"服务器内部错误: {str(e)}"
                 }), 500
         
-        # 新增路由
         @self.app.route('/api/get-novel-files')
         def GetNovelFiles():
             novel_dir = Path("DataCache/novels")
