@@ -26,6 +26,13 @@ class PromptProcess:
         self.resultPlot = ""
         self.resultTitle = ""
 
+    # 推理性的模型可能有<think></think>这样的标记，需要整个剔除掉，不需要思考的部分
+    def StripFromResponse(self, response: str):
+        if "</think>" in response and "<think>" in response:
+            return response.split("</think>")[-1].strip()
+        else:
+            return response
+
     def GeneratePrompt(self) -> str:
         prompt = self.promptCommon
         prompt += "你将按照以下信息，完成小说:\n"
@@ -45,6 +52,7 @@ class PromptProcess:
             result = self.RAGModule.GenerateWithOllama(prompt)
         else:
             result = self.LLMmodule.GenerateWithOllama(prompt)
+        result = self.StripFromResponse(result)
         return result
 
     def GenerateFullPlot(self, filepath) -> str:
@@ -90,6 +98,7 @@ class PromptProcess:
                 resultPlot = self.RAGModule.GenerateWithOllama(prompt)
             else:
                 resultPlot = self.LLMmodule.GenerateWithOllama(prompt)
+            resultPlot = self.StripFromResponse(resultPlot)
             print(resultPlot)
             self.resultPlot = resultPlot
 
@@ -144,6 +153,7 @@ class PromptProcess:
                 resultTitle = self.RAGModule.GenerateWithOllama(prompt)
             else:
                 resultTitle = self.LLMmodule.GenerateWithOllama(prompt)
+            resultTitle = self.StripFromResponse(resultTitle)
             print(resultTitle)
             self.resultTitle = resultTitle
 
@@ -195,6 +205,7 @@ class PromptProcess:
                 resultContent = self.RAGModule.GenerateWithOllama(prompt)
             else:
                 resultContent = self.LLMmodule.GenerateWithOllama(prompt)
+            resultContent = self.StripFromResponse(resultContent)
             print(resultContent)
 
             return resultContent

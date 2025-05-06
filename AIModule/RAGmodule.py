@@ -28,7 +28,7 @@ class RAGProcessor:
 
         self.llm = Ollama(
             base_url="http://localhost:11434",
-            model=config.get("llm_model", "gemma3:27b"),
+            model=config.get("llm_model"),
             temperature=config.get("temperature", 0.7),
             request_timeout=300
         )
@@ -152,6 +152,7 @@ class RAGProcessor:
         )
 
     def GenerateWithOllama(self, prompt: str, top_k: int = 5) -> str:
+        print("RAG GenerateWithOllama")
         """执行RAG查询"""
         try:
             query_engine = self.get_query_engine(top_k)

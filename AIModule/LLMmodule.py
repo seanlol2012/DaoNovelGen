@@ -9,11 +9,12 @@ from ConfigModule.ConfigManager import config
 class LLMmodule:
     def __init__(self):
         self.ollamaBaseUrl = "http://localhost:11434"
-        self.llmModel = config.get("llm_model", "gemma3:27b")
+        self.llmModel = config.get("llm_model")
         self.maxTokens = config.get("max_tokens", 4096)
         self.temperature = config.get("temperature", 0.7)
     
     def GenerateWithOllama(self, prompt: str, stream: bool = False) -> Dict:
+        print("LLM GenerateWithOllama")
         """
         调用本地Ollama生成文本
         参数说明：

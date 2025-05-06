@@ -1,6 +1,6 @@
 {
-    "enable_rag": true,
-    "llm_model": "gemma3:27b",
+    "enable_rag": false,
+    "llm_model": "qwen3:30b-a3b",
     "embedding_model": "bge-m3:latest",
     "temperature": 0.7,
     "chunk_size": 512,
