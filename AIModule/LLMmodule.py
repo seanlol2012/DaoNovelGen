@@ -6,7 +6,7 @@ from typing import Dict, Generator
 from ConfigModule.ConfigManager import config
 
 
-class LLMmodule:
+class LLMProcessor:
     def __init__(self):
         self.ollamaBaseUrl = "http://localhost:11434"
         self.llmModel = config.get("llm_model")
@@ -72,6 +72,6 @@ class LLMmodule:
 
 
 if __name__ == "__main__":
-    llm = LLMmodule()
+    llm = LLMProcessor()
     result = llm.GenerateWithOllama("说一首李白的诗", stream=False)
     print(result)
