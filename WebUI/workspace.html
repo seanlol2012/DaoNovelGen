@@ -164,7 +164,24 @@
         
         <form class="creation-form" onsubmit="handleSubmit(event)">
             <div class="input-group">
-                <label class="input-label">主题 | Theme</label>
+                <label class="input-label">类型 | Genre</label>
+                <select 
+                    class="xianxia-input" 
+                    id="genre" 
+                    required
+                    style="appearance: none; text-align-last: center; padding: 12px 45px 12px 25px;"
+                >
+                    <option value="" disabled selected>选择作品类型...</option>
+                    <option value="xuanhuan">玄幻 | Xuanhuan</option>
+                    <option value="kehuan">科幻 | Sci-Fi</option>
+                    <option value="dushi">都市 | Urban</option>
+                    <option value="xianxia">仙侠 | Cultivation</option>
+                    <option value="lingyi">灵异 | Supernatural</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">核心主线 | Theme</label>
                 <textarea 
                     class="xianxia-input" 
                     id="theme" 
