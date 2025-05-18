@@ -1,5 +1,10 @@
-import os
 import sys
+from pathlib import Path
+# 自动计算项目根目录路径（根据实际文件层级调整）
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent
+sys.path.insert(0, str(project_root))
+
 import requests
 import json
 from typing import Dict, Generator

@@ -12,17 +12,14 @@ class PromptProcess:
     def __init__(self, novelInfoModule: NovelInfoModule):
         self.isRagOn = config.get("enable_rag", False)
         if self.isRagOn:
-            print("RAG on, LLM + pre knowledge")
+            print("RAG on, LLM + pre set knowledge")
             self.RAGModule = RAGProcessor()
         else:
             print("RAG off, only LLM will be used")
             self.LLMmodule = LLMProcessor()
         self.novelInfoModule = novelInfoModule
 
-        self.promptCommon = "背景：你是一个网文小说创作者大师，熟悉当前所有热门类型网文的创作灵感和创作方法。" \
-                            "如果没有特别说明的话，你的输出语言应该是中文。" \
-                            "你只需要专注于完成任务，输出小说相关内容，不会说出其他无关的东西，也不会说出和用户对话式的话语。" \
-                            "现在你的任务是："
+        self.promptCommon = "背景：你是一个网文小说创作者大师，你的输出语言是中文。现在你的任务是："
         self.resultPlot = ""
         self.resultTitle = ""
 
@@ -37,9 +34,9 @@ class PromptProcess:
         prompt = self.promptCommon
         prompt += "基于以下信息，完成小说:\n"
         if self.novelInfoModule.novelName != "":
-            prompt += "小说的名字: " + self.novelInfoModule.novelName + "\n"
-        prompt += "小说的主题: " + self.novelInfoModule.novelTheme + "\n"
-        prompt += "小说主人公的名字: " + self.novelInfoModule.novelMainCharacterName
+            prompt += "小说名: " + self.novelInfoModule.novelName + "\n"
+        prompt += "小说主题: " + self.novelInfoModule.novelTheme + "\n"
+        prompt += "主人公的名字: " + self.novelInfoModule.novelMainCharacterName
     
     def GenerateTitleByTheme(self, novelTheme) -> str:
         prompt = self.promptCommon
@@ -83,20 +80,14 @@ class PromptProcess:
             prompt += f"主角设定：姓名：{novel_data['protagonist']}，背景：{novel_data['background']}\n"
             prompt += "生成要求：\n"
             prompt += "1. 构建宏大而独特的世界：创造一个具有独特地理、历史、文化和修炼体系的世界。" \
-                      "设定清晰的修炼体系：明确修炼的阶段、方法、资源和限制，确保体系逻辑自洽，如角色能力提升的境界划分。" \
-                      "融入多元元素：结合神话、传说、历史或现代元素，增加世界的丰富性和吸引力。" \
-                      "考虑世界规则：设定世界的运行规则，如因果报应、天道法则等(包括不局限于列举的几种)，为故事发展提供基础。\n"
+                      "设定清晰的修炼体系：明确修炼的阶段、方法、资源和限制，确保体系逻辑自洽。\n"
             prompt += "2. 主角设定：主角应有明确的目标和动机，性格鲜明，具备成长空间和独特的技能或天赋。" \
                       "配角塑造：配角应有各自的性格、背景和动机，避免脸谱化，使他们与主角产生互动和冲突。" \
-                      "反派设计：反派应有合理的动机和背景，避免单纯为了作恶而存在，使正邪冲突更具深度。" \
-                      "角色成长：角色应随着故事发展而成长和变化，体现其在修仙道路上的心境提升和实力增长。\n"
+                      "反派设计：反派应有合理的动机和背景，避免单纯为了作恶而存在，使正邪冲突更具深度。\n"
             prompt += "3. 语言流畅：使用流畅、生动的语言，避免过于晦涩或冗长的句子，使读者能够轻松阅读。" \
                       "描写细腻：对场景、人物和情感进行细腻的描写，增强故事的画面感和代入感。" \
                       "叙事结构：选择合适的叙事结构，如线性叙事、多线叙事等，使故事更具层次感和吸引力。" \
                       "幽默与搞怪：根据小说风格，适当加入幽默、搞怪或现代元素，增加故事的趣味性\n"
-            prompt += "4. 创新设定：在传统修仙元素的基础上，加入独特的创新设定，如特殊的修炼方法、新颖的法宝等。" \
-                      "反映现实：通过故事反映人性的复杂，增加故事的深度和内涵。" \
-                      "文化传承：融入中国传统文化元素，如道家思想、神话传说等，使小说更具文化底蕴。\n"
 
             print(prompt)
 
@@ -105,7 +96,7 @@ class PromptProcess:
             else:
                 resultPlot = self.LLMmodule.GenerateWithOllama(prompt)
             resultPlot = self.StripFromResponse(resultPlot)
-            print(resultPlot)
+            # print(resultPlot)
             self.resultPlot = resultPlot
 
             return resultPlot
@@ -156,7 +147,7 @@ class PromptProcess:
             else:
                 resultTitle = self.LLMmodule.GenerateWithOllama(prompt)
             resultTitle = self.StripFromResponse(resultTitle)
-            print(resultTitle)
+            # print(resultTitle)
             self.resultTitle = resultTitle
 
             return resultTitle
